@@ -1,0 +1,23 @@
+{
+  "name": "hyrm-plugin",
+  "version": "0.0.1",
+  "description": "一份简单的扩展包",
+  "author": "hyrm",
+  "main": "main.js",
+  "main-menu": {
+    "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.refresh-assets": {
+      "message": "hyrm-plugin:refresh",
+      "accelerator": "F4"
+    },
+    "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.sort-nodes": {
+      "message": "hyrm-plugin:sort-nodes",
+      "accelerator": "F5"
+    },
+    "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.watch-file": {
+      "message": "hyrm-plugin:watch-file"
+    }
+  },
+  "dependencies": {
+    "watch": "^1.0.2"
+  }
+}

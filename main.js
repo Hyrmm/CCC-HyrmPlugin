@@ -134,6 +134,11 @@ module.exports = {
       this.watchFile()
     },
 
+    "hyrm-plugin:global-setting"() {
+      Editor.Panel.open('hyrm-plugin');
+    },
+
+
     async "hyrm-plugin:sort-nodes"() {
 
       if (this.nodesSelectedList.length > 1) return Editor.error(`[Hyrm's-Plugin]:请确保当前只选中一个节点`)
@@ -296,7 +301,7 @@ module.exports = {
     const assetsPath = Editor.assetdb.urlToFspath("db://assets")
     if (!assetsPath) return Editor.error("[Hyrm's-Plugin]:文件监听开启失败，请尝试在菜单中手动开启")
 
-    watch.createMonitor(Editor.assetdb.urlToFspath("db://assets"), (monitor) => {
+    watch.createMonitor(Editor.assetdb.urlToFspath("db://assets"), { interval: 0.01 }, (monitor) => {
 
       monitor.on("created", (FileFspath, stat) => {
         const parentURL = Editor.assetdb.fspathToUrl(path.dirname(FileFspath))

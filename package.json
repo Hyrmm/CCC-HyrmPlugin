@@ -15,7 +15,17 @@
     },
     "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.watch-file": {
       "message": "hyrm-plugin:watch-file"
+    },
+    "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.global-setting": {
+      "message": "hyrm-plugin:global-setting"
     }
+  },
+  "panel": {
+    "main": "panel/index.js",
+    "type": "dockable",
+    "title": "i18n:hyrm-plugin.global-setting",
+    "width": 400,
+    "height": 300
   },
   "dependencies": {
     "watch": "^1.0.2"

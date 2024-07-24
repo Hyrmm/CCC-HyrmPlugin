@@ -10,24 +10,25 @@
       "accelerator": "F4"
     },
     "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.sort-nodes": {
-      "message": "hyrm-plugin:sort-nodes",
+      "message": "hyrm-plugin:sort-nodes/sort",
       "accelerator": "F5"
     },
     "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.watch-file": {
-      "message": "hyrm-plugin:watch-file"
+      "message": "hyrm-plugin:watch-file/onwatch"
     },
     "i18n:hyrm-plugin.menu-title/i18n:hyrm-plugin.global-setting": {
-      "message": "hyrm-plugin:global-setting"
+      "message": "hyrm-plugin:panel/open-setting"
     }
   },
   "panel": {
     "main": "panel/index.js",
-    "type": "dockable",
-    "title": "i18n:hyrm-plugin.global-setting",
-    "width": 400,
-    "height": 300
+    "type": "fixed-size",
+    "title": "i18n:hyrm-plugin.global-setting-title",
+    "width": 350,
+    "height": 400
   },
   "dependencies": {
+    "pubsub.js": "^1.5.2",
     "watch": "^1.0.2"
   }
 }

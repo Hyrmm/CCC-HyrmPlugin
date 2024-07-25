@@ -62,7 +62,6 @@ Editor.Panel.extend({
       <ui-box-container>
       </ui-box-container>
     </div>
-    <div style="width:100%;height:100px;"></div>
     <div style="margin-top: 10px;display: flex;justify-content: center;width:100%;position:absolute;bottom:10px;">
       <ui-button @confirm="saveSetting" class="green" style="width: 280px;height:30px;">保存</ui-button>
     </div>

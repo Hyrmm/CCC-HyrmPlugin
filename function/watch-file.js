@@ -70,7 +70,7 @@ exports.watchFile = class {
     }
 
     static rewatch() {
-        if (!monitor) return
+        if (!this.monitor) return
         this.monitor.stop()
         this.monitor = null
         this.onwatch()

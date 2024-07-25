@@ -74,7 +74,6 @@ module.exports = {
       if (oriWatchInterval != setting.watchInterval) {
         watchFile.rewatch()
       }
-
       global.setting = setting
       fs.writeFileSync(path.join(__dirname, "setting.json"), JSON.stringify(global.setting), { encoding: 'utf-8' })
       sender.reply(null, global.setting)

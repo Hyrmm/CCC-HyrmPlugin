@@ -4,4 +4,5 @@ module.exports = {
     "wathch-file": "watchFile",
     "sort-nodes": "sortNodes",
     "global-setting": "globalSetting",
+    "open-spine-preview": "openSpinePreview",
 };

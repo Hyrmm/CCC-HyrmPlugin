@@ -7,7 +7,7 @@ Editor.Panel.extend({
     }
     .scroll {
       overflow-y: scroll;
-      height: 100%;
+      height: 400px;
     }
   `,
 
@@ -20,12 +20,23 @@ Editor.Panel.extend({
         </ui-prop>
       </ui-box-container>
 
+      <h4><i class="icon-menu"></i>Spine预览</h3>
+      <ui-box-container>
+        <ui-prop name="自动开启">
+          <ui-checkbox :checked="spineAutoPreview" @change="spineAutoPreviewChange" class="flex-1"></ui-checkbox>
+        </ui-prop>
+      </ui-box-container>
+
       <h4><i class="icon-menu"></i>节点排序</h3>
       <ui-box-container>
         <ui-prop name="排序回调">
           <ui-input :value="sortCallback" @change="sortCallbackChange" type="number" class="flex-1"></ui-input>
         </ui-prop>
-        <ui-markdown> 
+        <ui-section>
+          <!-- ui-section 头部区域 -->
+          <div class="header">参考举例</div>
+          <!-- ui-section 子代内容区域 -->
+          <ui-markdown> 
           > 有一组待排序的节点，节点名称以数字递增的规则，通过名称排序:
 
           \`\`\`js
@@ -42,14 +53,18 @@ Editor.Panel.extend({
           }
           \`\`\`
         </ui-markdown>
+        </ui-section>
+        
+
       </ui-box-container>
 
       <h4><i class="icon-menu"></i>文件监听</h3>
       <ui-box-container>
       </ui-box-container>
-      <div style="margin-top: 10px;display: flex;justify-content: center">
-        <ui-button @confirm="saveSetting" class="green" style="width: 280px;height:30px;">保存</ui-button>
-      </div>
+    </div>
+    <div style="width:100%;height:100px;"></div>
+    <div style="margin-top: 10px;display: flex;justify-content: center;width:100%;position:absolute;bottom:10px;">
+      <ui-button @confirm="saveSetting" class="green" style="width: 280px;height:30px;">保存</ui-button>
     </div>
 
   `,
@@ -64,6 +79,7 @@ Editor.Panel.extend({
           globalSetting = setting
           this.watchInterval = setting.watchInterval
           this.sortCallback = setting.sortCallback
+          this.spineAutoPreview = setting.spineAutoPreview
         }.bind(this))
 
       },
@@ -71,6 +87,7 @@ Editor.Panel.extend({
       data: {
         watchInterval: 0,
         sortCallback: "",
+        spineAutoPreview: false
       },
 
       methods: {
@@ -78,6 +95,7 @@ Editor.Panel.extend({
         saveSetting() {
           globalSetting.watchInterval = Number(this.watchInterval)
           globalSetting.sortCallback = this.sortCallback
+          globalSetting.spineAutoPreview = this.spineAutoPreview
           Editor.Ipc.sendToMain("hyrm-plugin:panel/save-setting", "save-setting", globalSetting, function (err, setting) {
             alert("保存成功")
           })
@@ -89,6 +107,10 @@ Editor.Panel.extend({
 
         sortCallbackChange(event) {
           this.sortCallback = event.detail.value
+        },
+
+        spineAutoPreviewChange(event) {
+          this.spineAutoPreview = event.detail.value
         }
       }
     })

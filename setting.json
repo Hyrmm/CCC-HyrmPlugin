@@ -1,1 +1,1 @@
-{"watchInterval":0.51,"spineAutoPreview":true,"sortCallback":"function(node1,node2){   return Number(node1.name)-Number(node2.name) }"}
+{"watchAuto":false,"watchInterval":0.5,"spineAutoPreview":true,"sortCallback":"function(node1,node2){return Number(node1.name)-Number(node2.name)}"}

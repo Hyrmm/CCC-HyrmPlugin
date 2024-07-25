@@ -18,6 +18,9 @@ Editor.Panel.extend({
         <ui-prop name="监听间隔">
           <ui-input :value="watchInterval" @change="watchIntervalChange" type="number" class="flex-1"></ui-input>
         </ui-prop>
+        <ui-prop name="自动开启">
+          <ui-checkbox :checked="watchAuto" @change="watchAutoChange" class="flex-1"></ui-checkbox>
+        </ui-prop>
       </ui-box-container>
 
       <h4><i class="icon-menu"></i>Spine预览</h3>
@@ -54,12 +57,6 @@ Editor.Panel.extend({
           \`\`\`
         </ui-markdown>
         </ui-section>
-        
-
-      </ui-box-container>
-
-      <h4><i class="icon-menu"></i>文件监听</h3>
-      <ui-box-container>
       </ui-box-container>
     </div>
     <div style="margin-top: 10px;display: flex;justify-content: center;width:100%;position:absolute;bottom:10px;">
@@ -74,16 +71,21 @@ Editor.Panel.extend({
       el: this.shadowRoot,
 
       created() {
+
         Editor.Ipc.sendToMain("hyrm-plugin:panel/get-setting", "get-setting", function (err, setting) {
           globalSetting = setting
+
+          this.watchAuto = setting.watchAuto
           this.watchInterval = setting.watchInterval
           this.sortCallback = setting.sortCallback
           this.spineAutoPreview = setting.spineAutoPreview
+          
         }.bind(this))
 
       },
 
       data: {
+        watchAuto: false,
         watchInterval: 0,
         sortCallback: "",
         spineAutoPreview: false
@@ -92,12 +94,19 @@ Editor.Panel.extend({
       methods: {
 
         saveSetting() {
+
+          globalSetting.watchAuto = this.watchAuto
           globalSetting.watchInterval = Number(this.watchInterval)
           globalSetting.sortCallback = this.sortCallback
           globalSetting.spineAutoPreview = this.spineAutoPreview
+
           Editor.Ipc.sendToMain("hyrm-plugin:panel/save-setting", "save-setting", globalSetting, function (err, setting) {
             alert("保存成功")
           })
+        },
+
+        watchAutoChange(event) {
+          this.watchAuto = event.detail.value
         },
 
         watchIntervalChange(event) {

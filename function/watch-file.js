@@ -8,14 +8,16 @@ exports.watchFile = class {
     static assetTypes = []
 
     static init() {
-
+        if (global.setting.watchAuto) this.onwatch()
     }
 
     static onwatch() {
         if (this.monitor) return log.warn("文件监听已开启，请勿重复开启")
-
+        // assetdb 初始化时机较晚,间隔反复尝试
         const assetsPath = Editor.assetdb.urlToFspath("db://assets")
-        if (!assetsPath) return log.warn("文件监听开启失败，请尝试在菜单中手动开启")
+        if (!assetsPath) {
+            return setTimeout(() => this.onwatch(), 100)
+        }
 
         watch.createMonitor(Editor.assetdb.urlToFspath("db://assets"), { interval: global.setting.watchInterval }, (monitor) => {
 

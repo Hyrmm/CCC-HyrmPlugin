@@ -7,6 +7,9 @@ exports.watchFile = class {
     static monitor = null
     static assetTypes = []
 
+    static addFileMap = new Map()
+    static addFileInterval = null
+
     static init() {
         if (global.setting.watchAuto) this.onwatch()
     }
@@ -26,24 +29,25 @@ exports.watchFile = class {
             })
 
             monitor.on("created", (FileFspath, stat) => {
-                // const parentURL = Editor.assetdb.fspathToUrl(path.dirname(FileFspath))
-                // const targetDirectory = path.join(path.dirname(assetsPath), "/hyrm-plugin-file")
 
-                // if (fs.existsSync(targetDirectory) && !Editor.assetdb.existsByPath(FileFspath) && path.extname(FileFspath) != ".meta") {
+                const extName = path.extname(FileFspath) == ".meta"
+                const isExist = Editor.assetdb.existsByPath(FileFspath)
+                if (extName || isExist) return
 
-                //     if (stat.isDirectory()) {
-                //         copyFolder(FileFspath, path.join(targetDirectory, path.basename(FileFspath)))
-                //         deleteFolderRecursive(FileFspath)
-                //     } else {
-                //         fs.copyFileSync(FileFspath, path.join(targetDirectory, path.basename(FileFspath)))
-                //         fs.unlinkSync(FileFspath)
-                //     }
+                let root = path.dirname(FileFspath)
+                while (true) {
 
-                //     Editor.assetdb.import([path.join(targetDirectory, path.basename(FileFspath))], parentURL, (err, result) => {
-                //         if (err) return log.error(`${err}`)
-                //         log.success(`导入资源成功=>${parentURL}/${path.basename(FileFspath)}`)
-                //     })
-                // }
+                    const isExist = Editor.assetdb.existsByPath(root)
+                    if (isExist) {
+                        this.addFileMap.set(root, root)
+                        log.success(`新增文件${FileFspath},所在资源目录:${Editor.assetdb.fspathToUrl(root)}`)
+                        break
+                    }
+                    root = path.dirname(root)
+                }
+
+                clearInterval(this.addFileInterval)
+                this.addFileInterval = setInterval(this.clearAddFileMap.bind(this), 3000)
             })
 
             monitor.on("changed", (FileFspath, cur, prev) => {
@@ -60,6 +64,7 @@ exports.watchFile = class {
             })
 
             this.monitor = monitor
+            this.addFileInterval = setInterval(this.clearAddFileMap.bind(this), 3000)
             log.success(`文件监听开启成功，间隔:${global.setting.watchInterval}秒`)
         })
     }
@@ -68,15 +73,49 @@ exports.watchFile = class {
         if (!this.monitor) return
         this.monitor.stop()
         this.monitor = null
+        this.addFileInterval = null
+        clearInterval(this.addFileInterval)
         log.success("文件监听关闭成功")
     }
 
     static rewatch() {
         if (!this.monitor) return
-        this.monitor.stop()
-        this.monitor = null
+        this.unwatch()
         this.onwatch()
     }
+
+    static clearAddFileMap() {
+
+        if (this.addFileMap.size == 0) return
+
+        const result = []
+
+        for (const path of this.addFileMap.keys()) {
+
+            let flag = true
+
+            result.filter((value) => {
+                if (value.length > path.length) return !value.startsWith(path)
+                if (path.startsWith(value)) flag = false
+                return true
+            })
+
+            if (flag) result.push(path)
+        }
+
+
+
+        for (const path of result) {
+            const dbPath = Editor.assetdb.fspathToUrl(path)
+            log.success(`刷新新增目录:${dbPath}`)
+            Editor.assetdb.refresh(dbPath, (err, refreshResult) => {
+                if (err) return Editor.error(err)
+            })
+        }
+
+        this.addFileMap.clear()
+    }
+
 
     static refresh(uuid) {
         const assetInfo = Editor.assetdb.assetInfoByUuid(uuid)

@@ -25,7 +25,7 @@ exports.watchFile = class {
         if (!this.monitor) {
             const assetsPath = Editor.assetdb.urlToFspath("db://assets")
             if (!assetsPath) return setTimeout(() => { this.onwatch() }, 3000)
-            watch.createMonitor(Editor.assetdb.urlToFspath("db://assets"), { interval: 0.2 }, (monitor) => {
+            watch.createMonitor(Editor.assetdb.urlToFspath("db://assets"), { interval: global.setting.watchInterval / 1000 }, (monitor) => {
 
                 monitor.on("removed", (FileFspath, stat) => {
 
@@ -68,14 +68,14 @@ exports.watchFile = class {
                 this.iswatching = true
                 this.monitor = monitor
                 this.addFileInterval = setInterval(this.clearAddFileMap.bind(this), 3000)
-                this.changeFileInterval = setInterval(this.clearChangeFileMap.bind(this), global.setting.watchInterval)
-                log.success(`文件监听开启成功，间隔:${global.setting.watchInterval}毫秒`)
+                this.changeFileInterval = setInterval(this.clearChangeFileMap.bind(this), global.setting.refreshInterval)
+                log.success(`文件监听开启成功，刷新间隔:${global.setting.refreshInterval}ms，监听间隔:${global.setting.watchInterval}ms`)
             })
         } else {
             this.iswatching = true
             this.addFileInterval = setInterval(this.clearAddFileMap.bind(this), 3000)
-            this.changeFileInterval = setInterval(this.clearChangeFileMap.bind(this), global.setting.watchInterval)
-            log.success(`文件监听开启成功，间隔:${global.setting.watchInterval}毫秒`)
+            this.changeFileInterval = setInterval(this.clearChangeFileMap.bind(this), global.setting.refreshInterval)
+            log.success(`文件监听开启成功，刷新间隔:${global.setting.refreshInterval}ms，，监听间隔:${global.setting.watchInterval}ms`)
         }
 
 
@@ -99,6 +99,57 @@ exports.watchFile = class {
         if (!this.iswatching) return
         this.unwatch()
         this.onwatch()
+    }
+
+    static resetMonitor() {
+        this.iswatching = false
+        
+        this.monitor.stop()
+        this.monitor = null
+
+        watch.createMonitor(Editor.assetdb.urlToFspath("db://assets"), { interval: global.setting.watchInterval / 1000 }, (monitor) => {
+
+            monitor.on("removed", (FileFspath, stat) => {
+
+            })
+
+            monitor.on("created", (FileFspath, stat) => {
+
+                const extName = path.extname(FileFspath) == ".meta"
+                const isExist = Editor.assetdb.existsByPath(FileFspath)
+                if (extName || isExist) return
+
+                let root = path.dirname(FileFspath)
+                while (true) {
+
+                    const isExist = Editor.assetdb.existsByPath(root)
+                    if (isExist) {
+                        this.addFileMap.set(root, root)
+                        log.success(`新增文件${FileFspath},所在资源目录:${Editor.assetdb.fspathToUrl(root)}`)
+                        break
+                    }
+                    root = path.dirname(root)
+                }
+
+                clearInterval(this.addFileInterval)
+                this.addFileInterval = setInterval(this.clearAddFileMap.bind(this), 3000)
+            })
+
+            monitor.on("changed", (FileFspath, cur, prev) => {
+                if (path.extname(FileFspath) == ".meta") return
+                this.changeFileMap.set(FileFspath, FileFspath)
+            })
+
+            Editor.assetdb.deepQuery((err, result) => {
+
+                if (err) return log.error(err)
+
+                result.forEach(asset => { if (!this.assetTypes.includes(asset.type)) this.assetTypes.push(asset.type) })
+            })
+
+            this.iswatching = true
+            this.monitor = monitor
+        })
     }
 
     static clearAddFileMap() {

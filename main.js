@@ -69,9 +69,14 @@ module.exports = {
     "hyrm-plugin:panel/save-setting"(sender, msgName, setting) {
 
       const oriWatchInterval = global.setting.watchInterval
+      const oriRefreshInterval = global.setting.refreshInterval
       global.setting = setting
 
       if (oriWatchInterval != setting.watchInterval) {
+        watchFile.resetMonitor()
+      } 
+
+      if (oriRefreshInterval != setting.refreshInterval) {
         watchFile.rewatch()
       }
 

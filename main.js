@@ -17,11 +17,6 @@ module.exports = {
     const settingFile = fs.readFileSync(path.join(__dirname, "setting.json"), { encoding: 'utf-8' })
     global.setting = JSON.parse(settingFile.toString())
     utils.log.success(global.setting)
-
-    // 功能模块初始化
-    watchFile.init()
-    sortNodes.init()
-    spinePreview.init()
   },
 
   unload() {
@@ -32,6 +27,12 @@ module.exports = {
 
   messages: {
 
+    "scene:ready"(err) {
+      // 功能模块初始化
+      watchFile.init()
+      sortNodes.init()
+      spinePreview.init()
+    },
     /** 原生消息:场景编辑模式 */
     "scene:open-by-uuid"(err, uuid) {
       pubsub.publish("scene:open-by-uuid", [uuid])
@@ -44,13 +45,11 @@ module.exports = {
 
     /** 原生消息:选中节点(资源) */
     "selection:selected"(err, type, selectInfoList) {
-      // this.selectedHandle(err, type, selectInfoList)
       pubsub.publish("selection:selected", [type, selectInfoList])
     },
 
     /** 原生消息:取消选中节点(资源) */
     "selection:unselected"(err, type, unSelectInfoList) {
-      // this.unSelectedHandle(err, type, unSelectInfoList)
       pubsub.publish("selection:unselected", [type, unSelectInfoList])
 
     },
@@ -70,11 +69,12 @@ module.exports = {
     "hyrm-plugin:panel/save-setting"(sender, msgName, setting) {
 
       const oriWatchInterval = global.setting.watchInterval
+      global.setting = setting
 
       if (oriWatchInterval != setting.watchInterval) {
         watchFile.rewatch()
       }
-      global.setting = setting
+
       fs.writeFileSync(path.join(__dirname, "setting.json"), JSON.stringify(global.setting), { encoding: 'utf-8' })
       sender.reply(null, global.setting)
     },
